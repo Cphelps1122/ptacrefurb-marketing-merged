@@ -3,7 +3,6 @@ import streamlit as st
 import pandas as pd
 import requests
 from datetime import date, timedelta
-st.write("Secrets loaded:", list(st.secrets.keys()))
 
 st.set_page_config(page_title="PTAC Refurb Marketing OS", page_icon="📊", layout="wide")
 RED="#9C0100"; DARK="#343434"; GRAY="#666666"
