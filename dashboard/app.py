@@ -114,8 +114,33 @@ def page_data(key,title): header(); st.markdown(f"<div class='section-title'>{ti
 def page_setup():
     header(); st.markdown("<div class='section-title'>Setup Check</div>",unsafe_allow_html=True); u,t=get_config(); st.success('APPS_SCRIPT_URL is set.') if u else st.error('APPS_SCRIPT_URL missing.'); st.success('APPS_SCRIPT_TOKEN is set.') if t else st.error('APPS_SCRIPT_TOKEN missing.'); st.code('\n'.join(SHEET_NAMES.values()))
 def main():
-    css(); pages={'Executive Dashboard':page_executive,'Content Calendar':page_calendar,'Content Library':page_library,'Engagement Tracker':page_engagement,'Lead CRM':page_leads,'Weekly KPI Tracker':lambda:page_data('kpi','Weekly KPI Tracker'),'Opportunity Pipeline':lambda:page_data('pipeline','Opportunity Pipeline'),'Website Roadmap':lambda:page_data('website','Website Roadmap'),'Revenue Attribution':lambda:page_data('revenue','Revenue Attribution'),'Setup Check':page_setup}
+    css()
+
+    pages = {
+        "Executive Dashboard": page_executive,
+        "Content Calendar": page_calendar,
+        "Content Library": page_library,
+        "Engagement Tracker": page_engagement,
+        "Lead CRM": page_leads,
+        "Weekly KPI Tracker": lambda: page_data("kpi", "Weekly KPI Tracker"),
+        "Opportunity Pipeline": lambda: page_data("pipeline", "Opportunity Pipeline"),
+        "Website Roadmap": lambda: page_data("website", "Website Roadmap"),
+        "Revenue Attribution": lambda: page_data("revenue", "Revenue Attribution"),
+        "Setup Check": page_setup,
+    }
+
     with st.sidebar:
-        st.markdown('## PTAC Refurb'); page=st.radio('Navigation',list(pages.keys())); st.markdown('---'); st.success('Connected to Apps Script') if has_live_connection() else st.warning('Add Streamlit secrets')
+        st.markdown("## PTAC Refurb")
+        page = st.radio("Navigation", list(pages.keys()))
+        st.markdown("---")
+
+        if has_live_connection():
+            st.success("Connected to Apps Script")
+        else:
+            st.warning("Add Streamlit secrets")
+
     pages[page]()
-if __name__=='__main__': main()
+
+
+if __name__ == "__main__":
+    main()
