@@ -25,19 +25,25 @@ def header(): st.markdown("""<div class='hero'><h1>PTAC Refurb Marketing OS</h1>
 def get_config(): return st.secrets.get('APPS_SCRIPT_URL',''), st.secrets.get('APPS_SCRIPT_TOKEN','')
 def has_live_connection():
     u,t=get_config(); return bool(u and t)
-@st.cache_data(ttl=60,show_spinner=False)
+@st.cache_data(ttl=60, show_spinner=False)
 def read_sheet(sheet_name):
-    u,t=get_config()
-    if not u or not t: return pd.DataFrame(columns=EXPECTED_COLUMNS.get(sheet_name,[]))
+    sheet_id = st.secrets.get("1Cz1iP6K6w8FomYK-y22eiWddG4PIUFsx_lp8IKYuybI", "")
+
+    if not sheet_id:
+        st.error("Missing GOOGLE_SHEET_ID in Streamlit secrets.")
+        return pd.DataFrame()
+
     try:
-        r=requests.get(u,params={'action':'read','sheet':sheet_name,'token':t},timeout=25); data=r.json()
-        if data.get('status')!='success': st.warning(f"{sheet_name}: {data.get('message','Unknown error')}"); return pd.DataFrame(columns=EXPECTED_COLUMNS.get(sheet_name,[]))
-        df=pd.DataFrame(data.get('rows',[]))
-        for c in EXPECTED_COLUMNS.get(sheet_name,[]):
-            if c not in df.columns: df[c]=''
-        return df
+        url = (
+            f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?"
+            f"tqx=out:csv&sheet={sheet_name.replace(' ', '%20')}"
+        )
+
+        return pd.read_csv(url)
+
     except Exception as e:
-        st.error(f"Could not read {sheet_name}: {e}"); return pd.DataFrame(columns=EXPECTED_COLUMNS.get(sheet_name,[]))
+        st.error(f"Could not read {sheet_name}: {e}")
+        return pd.DataFrame()
 def append_row(sheet_name,row):
     u,t=get_config()
     if not u or not t: st.error('Missing Streamlit secrets.'); return False
